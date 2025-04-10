@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crop Yield Predictor</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #e0f7fa, #b2ebf2);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container-custom {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      max-width: 1200px;
+      width: 100%;
+      min-height: 90vh;
+      font-size: 0.85rem;
+    }
+
+    h2 {
+      text-align: center;
+      color: #00796b;
+      margin-bottom: 30px;
+      font-size: 1.6rem;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    label {
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      font-size: 0.85rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      grid-column: span 2;
+      padding: 10px;
+      background: #00796b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #004d40;
+    }
+
+    .result {
+      grid-column: span 2;
+      text-align: center;
+      margin-top: 15px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #004d40;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .card-body h6 {
+      font-size: 1rem;
+    }
+
+    .card-body p {
+      font-size: 0.9rem;
+    }
+
+    #loader {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: white;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .spinner-border {
+      width: 3rem;
+      height: 3rem;
+      color: #00796b;
+    }
+
+    @media (max-width: 768px) {
+      form {
+        grid-template-columns: 1fr;
+      }
+      .container-custom {
+        padding: 20px 10px;
+      }
+    }
+  </style>
+
+  <script>
+    // Loading animation
+    window.onload = function () {
+      document.getElementById("loader").style.display = "none";
+    };
+  </script>
+</head>
+<body>
+
+<div id="loader">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<div class="container-custom">
+  <div class="row g-4">
+    <!-- Form Section -->
+    <div class="col-lg-8">
+      <h2>🌾 Crop Production Prediction Tool</h2>
+      <form method="post">
+        <div>
+          <label for="Crop">Crop</label>
+          <select name="Crop" id="Crop" required>
+            {% for crop in ['Arecanut', 'Arhar/Tur', 'Banana', 'Barley', 'Bajra', 'Black pepper', 'Cardamom', 'Cashewnut', 'Castor seed', 'Coconut ', 'Coriander', 'Cotton(lint)', 'Cowpea(Lobia)', 'Dry chillies', 'Garlic', 'Ginger', 'Gram', 'Groundnut', 'Guar seed', 'Horse-gram', 'Jowar', 'Jute', 'Khesari', 'Linseed', 'Maize', 'Masoor', 'Mesta', 'Moong(Green Gram)', 'Moth', 'Niger seed', 'Oilseeds total', 'Onion', 'Other Cereals', 'Other Kharif pulses', 'Other Rabi pulses', 'Other Summer Pulses', 'Peas & beans (Pulses)', 'Potato', 'Rapeseed &Mustard', 'Ragi', 'Rice', 'Safflower', 'Sannhamp', 'Sesamum', 'Small millets', 'Soyabean', 'Sugarcane', 'Sunflower', 'Sweet potato', 'Tapioca', 'Tobacco', 'Turmeric', 'Urad', 'Wheat', 'other oilseeds'] %}
+              <option value="{{ crop }}" {% if request.form.get('Crop') == crop %}selected{% endif %}>{{ crop }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="Crop_Year">Crop Year</label>
+          <input type="number" name="Crop_Year" id="Crop_Year" required value="{{ request.form.get('Crop_Year', '') }}">
+        </div>
+
+        <div>
+          <label for="Season">Season</label>
+          <select name="Season" id="Season" required>
+            {% for season in ['Kharif', 'Rabi', 'Whole Year'] %}
+              <option value="{{ season }}" {% if request.form.get('Season') == season %}selected{% endif %}>{{ season }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="State">State</label>
+          <select name="State" id="State" required>
+            {% for state in ['Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jammu and Kashmir', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'] %}
+              <option value="{{ state }}" {% if request.form.get('State') == state %}selected{% endif %}>{{ state }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="Area">Area (Hectares)</label>
+          <input type="number" step="0.01" name="Area" id="Area" required value="{{ request.form.get('Area', '') }}">
+        </div>
+
+        <div>
+          <label for="Annual_Rainfall">Annual Rainfall (mm)</label>
+          <input type="number" step="0.01" name="Annual_Rainfall" id="Annual_Rainfall" required value="{{ request.form.get('Annual_Rainfall', '') }}">
+        </div>
+
+        <div>
+          <label for="Fertilizer">Fertilizer (kg)</label>
+          <input type="number" step="0.01" name="Fertilizer" id="Fertilizer" required value="{{ request.form.get('Fertilizer', '') }}">
+        </div>
+
+        <div>
+          <label for="Pesticide">Pesticide (kg)</label>
+          <input type="number" step="0.01" name="Pesticide" id="Pesticide" required value="{{ request.form.get('Pesticide', '') }}">
+        </div>
+
+        <button type="submit">Predict</button>
+
+        {% if prediction is not none %}
+          {% if prediction <= 0 %}
+            <div class="result text-danger">
+              ⚠️ The predicted yield is zero or negative. This usually means the inputs may not be realistic.<br>
+              <span style="font-size: 0.9rem; color: #555;">
+                Please double-check the crop type, rainfall, area, and other parameters and try again.
+              </span>
+            </div>
+          {% else %}
+            <div class="result">
+              🌱 <strong>Predicted Yield:</strong> {{ '%.2f' % prediction }} metric tons
+              <p style="margin-top: 10px; font-size: 0.85rem; color: #555;">
+                This value is an estimate based on your inputs. Real-world outcomes may vary based on field and weather conditions.
+              </p>
+            </div>
+          {% endif %}
+        {% endif %}
+      </form>
+    </div>
+
+    <!-- Info Box -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h5 class="card-title mb-0 d-flex align-items-center">
+            <i class="fas fa-info-circle text-success me-2"></i>
+            About This Tool
+          </h5>
+        </div>
+        <div class="card-body">
+          <p class="card-text mb-4">
+            Crop Production Prediction Tool uses machine learning to estimate crop yields based on environmental and input factors.
+          </p>
+
+          <div class="d-flex mb-3">
+            <div class="me-3 text-success">
+              <i class="fas fa-leaf fa-lg"></i>
+            </div>
+            <div>
+              <h6 class="fw-medium">Accurate Predictions</h6>
+              <p class="text-muted small">Trained on real-world datasets for reliable estimates.</p>
+            </div>
+          </div>
+
+          <div class="d-flex mb-3">
+            <div class="me-3 text-success">
+              <i class="fas fa-cloud-sun-rain fa-lg"></i>
+            </div>
+            <div>
+              <h6 class="fw-medium">Seasonal Trends</h6>
+              <p class="text-muted small">Understand how weather and seasons affect yield.</p>
+            </div>
+          </div>
+
+          <div class="d-flex mb-3">
+            <div class="me-3 text-success">
+              <i class="fas fa-tint fa-lg"></i>
+            </div>
+            <div>
+              <h6 class="fw-medium">Optimized Inputs</h6>
+              <p class="text-muted small">Balance fertilizer, pesticide and rainfall to maximize results.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

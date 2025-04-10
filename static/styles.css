@@ -1,0 +1,12 @@
+body {
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+h1 {
+    color: #2e8b57;
+}
+
+input {
+    border-radius: 8px;
+}
