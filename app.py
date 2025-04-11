@@ -10,14 +10,21 @@ app.secret_key = 'your_secret_key_here'
 with open('catboost_model.pkl', 'rb') as f:
     model = pickle.load(f)
 
+# Dummy options – replace with your actual values
+crops = ['Wheat', 'Rice', 'Maize', 'Barley']
+states = ['Maharashtra', 'Punjab', 'Karnataka', 'Bihar']
+seasons = ['Kharif', 'Rabi', 'Summer', 'Winter', 'Whole Year']
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     prediction = None
     warning = None
+    form_data = None
 
     if request.method == 'POST':
         try:
-            area = float(request.form['Area'])
+            area_input = request.form['Area']
+            area = float(area_input)
 
             if area == 0:
                 prediction = 0
@@ -35,19 +42,32 @@ def index():
 
                 input_df = pd.DataFrame([data])
                 pred_log = model.predict(input_df)[0]
-                print(pred_log)
                 prediction = round(np.expm1(pred_log), 2)
 
-                # Optional: Warn if output is negative or suspiciously low
                 if prediction <= 0:
-                    warning = "The prediction seems unrealistic based on the input values. Please try with different inputs."
+                    warning = (
+                        "⚠️ The predicted yield is zero or negative. "
+                        "This usually means the inputs may not be realistic. "
+                        "Please double-check and try again."
+                    )
+
+            form_data = request.form
 
         except Exception as e:
             print("Prediction Error:", e)
             prediction = None
-            warning = "Something went wrong. Please check your input values."
+            warning = "⚠️ Something went wrong. Please check your input values."
+            form_data = request.form
 
-    return render_template('index.html', prediction=prediction, warning=warning)
+    return render_template(
+        'index.html',
+        prediction=prediction,
+        warning=warning,
+        form_data=form_data,
+        crops=crops,
+        states=states,
+        seasons=seasons
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
